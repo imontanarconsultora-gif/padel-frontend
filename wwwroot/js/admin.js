@@ -249,7 +249,7 @@ function pintarAlumnas(txt, cat) {
 function editarAlumna(id) {
   const a = _alumnasBuscadas.find(x => x.id === id);
   if (!a) return;
-  document.getElementById('modal-alumna-titulo').textContent = 'Editar alumna';
+  document.getElementById('modal-alumna-titulo').textContent = 'Editar alumno';
   document.getElementById('alumna-edit-id').value   = a.id;
   document.getElementById('alumna-nombre').value    = a.nombre;
   document.getElementById('alumna-tel').value       = a.telefono;
@@ -259,7 +259,7 @@ function editarAlumna(id) {
 }
 
 function nuevaAlumna() {
-  document.getElementById('modal-alumna-titulo').textContent = 'Nueva alumna';
+  document.getElementById('modal-alumna-titulo').textContent = 'Nuevo alumno';
   document.getElementById('alumna-edit-id').value   = '';
   document.getElementById('alumna-nombre').value    = '';
   document.getElementById('alumna-tel').value       = '';
@@ -284,15 +284,15 @@ async function guardarAlumna() {
     if (editId) await apiPut(`/api/alumnos/${editId}`, body);
     else        await apiPost('/api/alumnos', body);
     cerrarModal('modal-alumna');
-    toast(editId ? 'Alumna actualizada' : 'Alumna registrada', 'ok');
+    toast(editId ? 'Alumno actualizado' : 'Alumno registrado', 'ok');
     cargarAlumnas();
   } catch(e) { toast(e.message, 'err'); }
-  finally { btn.disabled = false; btn.textContent = 'Guardar alumna'; }
+  finally { btn.disabled = false; btn.textContent = 'Guardar alumno'; }
 }
 
 async function eliminarAlumna(id) {
   const result = await Swal.fire({
-    title: '¿Eliminar alumna?',
+    title: '¿Eliminar alumno?',
     text: 'Se borrarán también sus reservas asociadas.',
     icon: 'warning',
     showCancelButton: true,
@@ -304,7 +304,7 @@ async function eliminarAlumna(id) {
   if (!result.isConfirmed) return;
   try {
     await apiDel(`/api/alumnos/${id}`);
-    toast('Alumna eliminada', 'ok');
+    toast('Alumno eliminado', 'ok');
     cargarAlumnas();
   } catch(e) { toast(e.message, 'err'); }
 }
@@ -346,7 +346,7 @@ async function cargarReservas(fecha) {
 async function cancelarReserva(id) {
   const result = await Swal.fire({
     title: '¿Cancelar reserva?',
-    text: 'La alumna será notificada por WhatsApp.',
+    text: 'El alumno será notificado por WhatsApp.',
     icon: 'question',
     showCancelButton: true,
     confirmButtonColor: '#c0392b',

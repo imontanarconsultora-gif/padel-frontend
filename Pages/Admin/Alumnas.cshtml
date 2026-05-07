@@ -1,18 +1,18 @@
 @page
 @model PadelWeb.Pages.Admin.AlumnasModel
 @{
-    ViewData["Title"] = "Gestión de Alumnas";
+    ViewData["Title"] = "Gestión de Alumnos";
     ViewData["ActivePage"] = "Alumnas";
     Layout = "~/Pages/Shared/_AdminLayout.cshtml";
 }
 
 @section TopbarActions {
-  <button class="btn btn-primary" onclick="nuevaAlumna()">+ Nueva alumna</button>
+  <button class="btn btn-primary" onclick="nuevaAlumna()">+ Nuevo alumno</button>
 }
 
 <div class="card">
   <div class="card-header">
-    <span class="card-title">Alumnas registradas</span>
+    <span class="card-title">Alumnos registrados</span>
     <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
       <select class="form-control" style="width:180px;" onchange="pintarAlumnas(document.getElementById('buscar-alumna').value, this.value)" id="filtro-cat">
         <option value="">Todas las categorías</option>
@@ -38,8 +38,8 @@
   </div>
   <div id="alumnas-empty" class="empty-state" style="display:none;">
     <div class="empty-icon">👥</div>
-    <p>No hay alumnas registradas aún</p>
-    <button class="btn btn-primary" onclick="nuevaAlumna()">+ Agregar primera alumna</button>
+    <p>No hay alumnos registrados aún</p>
+    <button class="btn btn-primary" onclick="nuevaAlumna()">+ Agregar primer alumno</button>
   </div>
 </div>
 
@@ -47,7 +47,7 @@
 <div class="modal-overlay" id="modal-alumna">
   <div class="modal">
     <div class="modal-header">
-      <h3 id="modal-alumna-titulo">Nueva alumna</h3>
+      <h3 id="modal-alumna-titulo">Nuevo alumno</h3>
       <button class="modal-close" onclick="cerrarModal('modal-alumna')">✕</button>
     </div>
     <div class="modal-body">
@@ -72,13 +72,13 @@
       </div>
       <div class="form-group">
         <label class="form-label" style="display:flex;align-items:center;gap:.5rem;cursor:pointer;">
-          <input type="checkbox" id="alumna-activa" checked style="width:16px;height:16px;"> Alumna activa
+          <input type="checkbox" id="alumna-activa" checked style="width:16px;height:16px;"> Alumno activo
         </label>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="cerrarModal('modal-alumna')">Cancelar</button>
-      <button class="btn btn-primary" id="btn-guardar-alumna" onclick="guardarAlumna()">Guardar alumna</button>
+      <button class="btn btn-primary" id="btn-guardar-alumna" onclick="guardarAlumna()">Guardar alumno</button>
     </div>
   </div>
 </div>
