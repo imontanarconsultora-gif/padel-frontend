@@ -351,6 +351,7 @@
     document.getElementById('error-msg').classList.remove('visible');
     try {
       await apiPost('/api/reservas',{telefono:norm,turnoId:estado.turno.id,fechaClase:estado.fecha});
+      cargarTurnos(); // actualiza cupos en segundo plano para cuando el usuario vuelva
       mostrarExito();
     } catch(e){mostrarError(e.message);btn.disabled=false;btn.textContent='✓ CONFIRMAR RESERVA';}
   }
@@ -373,7 +374,7 @@
     document.getElementById('error-msg').classList.remove('visible');
     document.getElementById('panel-form').classList.add('visible');
     document.getElementById('panel-exito').classList.remove('visible');
-    renderTurnos(); actualizarBtn();
+    cargarTurnos(); actualizarBtn();
   }
 
   init();

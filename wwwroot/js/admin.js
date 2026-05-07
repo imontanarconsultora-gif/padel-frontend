@@ -14,12 +14,13 @@ async function cargarDashboard() {
   });
   setTableLoading('dashboard-tabla', 6);
 
-  const hoy = new Date().toISOString().slice(0,10);
+  const _d = new Date(); _d.setDate(_d.getDate() + 1);
+  const manana = _d.toISOString().slice(0,10);
 
   // Llamadas separadas para que un 404 no mate todo el dashboard
   const [resAlumnas, resTurnos] = await Promise.allSettled([
     apiGet('/api/alumnos'),
-    apiGet(`/api/turnos?fecha=${hoy}`)
+    apiGet(`/api/turnos?fecha=${manana}`)
   ]);
 
   // Stat alumnas
@@ -327,7 +328,7 @@ async function cargarReservas(fecha) {
     if (empty) empty.style.display = 'none';
 
     tbody.innerHTML = lista.map(r => `<tr>
-      <td style="font-weight:500">${r.alumnaNombre}</td>
+      <td style="font-weight:500">${r.alumnoNombre}</td>
       <td>${r.turnoNombre}</td>
       <td>${r.fechaClase}</td>
       <td><span class="badge ${r.estado==='Confirmada'?'badge-ok':'badge-no'}">${r.estado}</span></td>

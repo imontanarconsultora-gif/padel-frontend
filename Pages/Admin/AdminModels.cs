@@ -31,7 +31,7 @@ public class ReservasModel(IConfiguration config) : PageModel
     public void OnGet()
     {
         ApiUrl   = config["ApiUrl"] ?? "http://localhost:5000";
-        FechaHoy = DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd");
+        FechaHoy = DateOnly.FromDateTime(DateTime.Today.AddDays(1)).ToString("yyyy-MM-dd");
     }
 }
 

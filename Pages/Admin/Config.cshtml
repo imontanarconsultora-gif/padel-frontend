@@ -80,7 +80,7 @@
     try {
       const lista = await apiGet(`/api/reservas?fecha=${hoy}`);
       descargarCSV(['ID','Alumno','Teléfono','Turno','Fecha','Estado','Recordatorio'],
-        lista.map(r => [r.id, r.alumnaNombre, r.alumnaTel, r.turnoNombre, r.fechaClase, r.estado, r.recordatorioEnviado?'Sí':'No']),
+        lista.map(r => [r.id, r.alumnoNombre, r.alumnoTel, r.turnoNombre, r.fechaClase, r.estado, r.recordatorioEnviado?'Sí':'No']),
         'reservas');
       toast('reservas.csv descargado', 'ok');
     } catch(e) { toast(e.message, 'err'); }
