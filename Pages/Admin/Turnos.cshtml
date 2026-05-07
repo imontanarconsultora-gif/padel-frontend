@@ -1,0 +1,102 @@
+@page
+@model PadelWeb.Pages.Admin.TurnosModel
+@{
+    ViewData["Title"] = "Gestión de Turnos";
+    ViewData["ActivePage"] = "Turnos";
+    Layout = "~/Pages/Shared/_AdminLayout.cshtml";
+}
+
+@section TopbarActions {
+  <button class="btn btn-primary" onclick="nuevoTurno()">+ Nuevo turno</button>
+}
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Turnos configurados</span>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="form-control" style="width:200px;" placeholder="Buscar..." oninput="pintarTurnos(this.value)">
+    </div>
+  </div>
+  <div style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr><th>Nombre</th><th>Categoría</th><th>Género</th><th>Día</th><th>Hora</th><th>Máx</th><th>Estado</th><th>Acciones</th></tr>
+      </thead>
+      <tbody id="turnos-tabla"></tbody>
+    </table>
+  </div>
+  <div id="turnos-empty" class="empty-state" style="display:none;">
+    <div class="empty-icon">🗓</div>
+    <p>No hay turnos cargados aún</p>
+    <button class="btn btn-primary" onclick="nuevoTurno()">+ Agregar primer turno</button>
+  </div>
+</div>
+
+<!-- Modal Turno -->
+<div class="modal-overlay" id="modal-turno">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-turno-titulo">Nuevo turno</h3>
+      <button class="modal-close" onclick="cerrarModal('modal-turno')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="turno-edit-id">
+      <div class="form-group">
+        <label class="form-label">Nombre del turno</label>
+        <input class="form-control" id="turno-nombre" placeholder="Ej: Lunes 18:00 Avanzada">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Día</label>
+          <select class="form-control" id="turno-dia">
+            <option value="1">Lunes</option><option value="2">Martes</option>
+            <option value="3">Miércoles</option><option value="4">Jueves</option>
+            <option value="5">Viernes</option><option value="6">Sábado</option>
+            <option value="0">Domingo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hora</label>
+          <input class="form-control" id="turno-hora" type="time" value="09:00">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Categoría</label>
+          <select class="form-control" id="turno-categoria">
+            @foreach(var cat in new[]{"8va Principiante","8va Avanzada","7ma Principiante","7ma Avanzada","6ta Principiante","6ta Avanzada","5ta Principiante","5ta Avanzada","4ta Principiante","4ta Avanzada"})
+            {
+              <option value="@cat">@cat</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Género</label>
+          <select class="form-control" id="turno-genero">
+            <option value="1">Damas</option>
+            <option value="2">Caballeros</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Máximo de jugadores</label>
+        <input class="form-control" id="turno-max" type="number" value="4" min="1" max="10">
+      </div>
+      <div class="form-group">
+        <label class="form-label" style="display:flex;align-items:center;gap:.5rem;cursor:pointer;">
+          <input type="checkbox" id="turno-activo" checked style="width:16px;height:16px;"> Turno activo
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrarModal('modal-turno')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-guardar-turno" onclick="guardarTurno()">Guardar turno</button>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script>/* API_URL se define en site.js como proxy local */</script>
+<script>document.addEventListener('DOMContentLoaded', cargarTurnos);</script>
+}

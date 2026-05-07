@@ -1,0 +1,158 @@
+@page
+@model PadelWeb.Pages.CancelarModel
+@{
+    ViewData["Title"] = "Cancelar turno";
+    ViewData["HeaderSub"] = "Cancelar turno";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+<style>
+  main { flex:1; display:flex; flex-direction:column; justify-content:center; max-width:500px; width:100%; margin:0 auto; padding:2rem 1.5rem; }
+  .spinner-grande { width:44px;height:44px;border:3px solid var(--borde);border-top-color:var(--negro);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1.25rem; }
+  .loading-box { text-align:center;padding:3rem 0; }
+  .loading-box p { color:var(--gris);font-size:.875rem; }
+  .confirm-card { background:#fff;border:1.5px solid var(--borde);border-radius:16px;overflow:hidden; }
+  .confirm-hero { background:var(--negro);padding:1.75rem 1.5rem;text-align:center; }
+  .confirm-hero .icono { font-size:2.2rem;display:block;margin-bottom:.6rem; }
+  .confirm-hero h2 { font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:#fff; }
+  .confirm-hero p { color:rgba(255,255,255,.45);font-size:.82rem;margin-top:.3rem; }
+  .confirm-body { padding:1.5rem; }
+  .detalle-box { background:var(--bg);border-radius:10px;padding:1.1rem;margin-bottom:1.1rem; }
+  .detalle-row { display:flex;justify-content:space-between;align-items:center;padding:.35rem 0;font-size:.85rem; }
+  .detalle-row:not(:last-child) { border-bottom:1px solid var(--borde); }
+  .detalle-row .lbl { color:var(--gris); }
+  .detalle-row .val { font-weight:600;font-family:'DM Mono',monospace;font-size:.82rem; }
+  .aviso { display:flex;align-items:flex-start;gap:.6rem;background:var(--amar-l);border:1px solid rgba(176,125,42,.2);border-radius:8px;padding:.7rem .9rem;margin-bottom:1.1rem;font-size:.8rem;color:var(--amarillo); }
+  .btn-cancelar { width:100%;background:var(--rojo);color:#fff;border:none;border-radius:10px;padding:.9rem;font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:.5rem;margin-bottom:.6rem; }
+  .btn-cancelar:hover:not(:disabled) { background:#a93226;transform:translateY(-1px); }
+  .btn-cancelar:disabled { opacity:.4;cursor:not-allowed; }
+  .btn-link { display:block;text-align:center;color:var(--gris);font-size:.82rem;text-decoration:none;padding:.6rem;border-radius:8px;border:1.5px solid var(--borde);transition:all .15s; }
+  .btn-link:hover { border-color:var(--negro);color:var(--negro); }
+  .resultado { background:#fff;border-radius:16px;padding:2.5rem 1.5rem;text-align:center;border:1.5px solid var(--borde); }
+  .resultado .icono { font-size:3.5rem;display:block;margin-bottom:.75rem; }
+  .resultado h2 { font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800; }
+  .resultado p { color:var(--gris);font-size:.875rem;margin-top:.4rem;line-height:1.5; }
+  .resultado.ok  { border-color:var(--verde); } .resultado.ok h2  { color:var(--verde); }
+  .resultado.warn{ border-color:var(--amarillo); } .resultado.warn h2{ color:var(--amarillo); }
+  .resultado.err { border-color:var(--rojo); } .resultado.err h2 { color:var(--rojo); }
+  .wa-note { display:flex;align-items:center;gap:.5rem;background:var(--verde-l);border:1px solid rgba(42,122,75,.2);border-radius:8px;padding:.65rem .9rem;margin-top:1rem;font-size:.8rem;color:var(--verde); }
+  .estado { display:none; } .estado.visible { display:block; }
+</style>
+}
+
+<div id="estado-loading" class="estado visible">
+  <div class="loading-box">
+    <div class="spinner-grande"></div>
+    <p>Verificando tu reserva...</p>
+  </div>
+</div>
+
+<div id="estado-confirm" class="estado">
+  <div class="confirm-card">
+    <div class="confirm-hero">
+      <span class="icono">⚠️</span>
+      <h2>Cancelar turno</h2>
+      <p>Revisá los detalles antes de confirmar</p>
+    </div>
+    <div class="confirm-body">
+      <div class="detalle-box" id="detalle-turno"></div>
+      <div class="aviso"><span>ℹ️</span><span>Solo podés cancelar hasta <strong>2 horas antes</strong> del turno.</span></div>
+      <button class="btn-cancelar" id="btn-confirmar" onclick="confirmarCancelacion()">✕ CONFIRMAR CANCELACIÓN</button>
+      <a href="/" class="btn-link">← Volver a reservas</a>
+    </div>
+  </div>
+</div>
+
+<div id="estado-ok" class="estado">
+  <div class="resultado ok">
+    <span class="icono">✅</span>
+    <h2>Turno cancelado</h2>
+    <p>Tu cancelación fue procesada correctamente.</p>
+    <div class="detalle-box" id="detalle-ok"></div>
+    <div class="wa-note">📱 Te enviamos una confirmación por WhatsApp</div>
+    <br>
+    <a href="/" class="btn-link" style="display:inline-block;padding:.65rem 2rem;width:auto;">Reservar otro turno →</a>
+  </div>
+</div>
+
+<div id="estado-invalido" class="estado">
+  <div class="resultado err">
+    <span class="icono">❌</span><h2>Link inválido</h2>
+    <p>Este link no existe o ya fue utilizado.</p><br>
+    <a href="/" class="btn-link" style="display:inline-block;padding:.65rem 2rem;width:auto;">← Volver a inicio</a>
+  </div>
+</div>
+
+<div id="estado-ya-cancelada" class="estado">
+  <div class="resultado warn">
+    <span class="icono">ℹ️</span><h2>Ya estaba cancelada</h2>
+    <p>Esta reserva ya fue cancelada anteriormente.</p><br>
+    <a href="/" class="btn-link" style="display:inline-block;padding:.65rem 2rem;width:auto;">Hacer una reserva →</a>
+  </div>
+</div>
+
+<div id="estado-tarde" class="estado">
+  <div class="resultado warn">
+    <span class="icono">⏰</span><h2>Ya no se puede cancelar</h2>
+    <p>La cancelación solo está disponible hasta <strong style="color:var(--amarillo)">2 horas antes</strong> del turno.</p>
+    <div class="detalle-box" id="detalle-tarde"></div>
+  </div>
+</div>
+
+<div id="estado-error" class="estado">
+  <div class="resultado err">
+    <span class="icono">🔧</span><h2>Error del sistema</h2>
+    <p>Ocurrió un error. Intentá de nuevo en unos minutos.</p><br>
+    <button class="btn-cancelar" onclick="location.reload()" style="max-width:180px;margin:0 auto;">Reintentar</button>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+  window.API_URL = '@Model.ApiUrl';
+  let tokenActual = null, reservaActual = null;
+
+  const ESTADOS = ['loading','confirm','ok','invalido','ya-cancelada','tarde','error'];
+  function mostrarEstado(id){ESTADOS.forEach(e=>{document.getElementById(`estado-${e}`)?.classList.toggle('visible',e===id);});}
+
+  function formatFecha(iso){return new Date(iso+'T12:00:00').toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+
+  function renderDetalle(r,id){
+    document.getElementById(id).innerHTML=`
+      <div class="detalle-row"><span class="lbl">👤 Alumna</span><span class="val">${r.alumna}</span></div>
+      <div class="detalle-row"><span class="lbl">📅 Fecha</span><span class="val">${formatFecha(r.fechaClase)}</span></div>
+      <div class="detalle-row"><span class="lbl">⏰ Hora</span><span class="val">${r.hora}</span></div>
+      <div class="detalle-row"><span class="lbl">🏷 Categoría</span><span class="val">${r.categoria}</span></div>`;
+  }
+
+  async function confirmarCancelacion(){
+    const btn=document.getElementById('btn-confirmar');
+    btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';
+    try{
+      await apiPost('/api/reservas/cancelar',{token:tokenActual});
+      renderDetalle(reservaActual,'detalle-ok');
+      mostrarEstado('ok');
+    }catch(e){
+      const codigo=e.message.includes('ya')?'ya-cancelada':e.message.includes('tiempo')?'tarde':'error';
+      mostrarEstado(codigo);
+    }
+  }
+
+  async function init(){
+    tokenActual=new URLSearchParams(location.search).get('token');
+    if(!tokenActual){mostrarEstado('invalido');return;}
+    mostrarEstado('loading');
+    try{
+      const data=await apiGet(`/api/reservas/verificar-cancelacion?token=${tokenActual}`);
+      if(!data?.ok){mostrarEstado(data?.codigo==='ya-cancelada'?'ya-cancelada':'invalido');return;}
+      reservaActual=data.reserva;
+      if(!reservaActual.puedeCancelar){renderDetalle(reservaActual,'detalle-tarde');mostrarEstado('tarde');return;}
+      renderDetalle(reservaActual,'detalle-turno');
+      mostrarEstado('confirm');
+    }catch{mostrarEstado('invalido');}
+  }
+
+  init();
+</script>
+}

@@ -1,0 +1,37 @@
+@page
+@model PadelWeb.Pages.Admin.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["ActivePage"] = "Dashboard";
+    Layout = "~/Pages/Shared/_AdminLayout.cshtml";
+}
+
+@section TopbarActions {
+  <button class="btn btn-ghost" onclick="cargarDashboard()">↺ Actualizar</button>
+}
+
+<div class="stats-grid">
+  <div class="stat-card"><div class="stat-label">Alumnas activas</div><div class="stat-val" id="stat-alumnas">…</div><div class="stat-sub">registradas en el sistema</div></div>
+  <div class="stat-card"><div class="stat-label">Turnos activos</div><div class="stat-val" id="stat-turnos">…</div><div class="stat-sub">en la semana</div></div>
+  <div class="stat-card"><div class="stat-label">Cupos libres</div><div class="stat-val" id="stat-cupos">…</div><div class="stat-sub">disponibles hoy</div></div>
+  <div class="stat-card"><div class="stat-label">Ocupación</div><div class="stat-val" id="stat-ocup">…</div><div class="stat-sub">promedio del club</div></div>
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">Resumen de turnos — hoy</span></div>
+  <div style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>Turno</th><th>Categoría</th><th>Día</th><th>Hora</th><th>Ocupación</th><th>Estado</th>
+        </tr>
+      </thead>
+      <tbody id="dashboard-tabla"></tbody>
+    </table>
+  </div>
+</div>
+
+@section Scripts {
+<script>/* API_URL se define en site.js como proxy local */</script>
+<script>document.addEventListener('DOMContentLoaded', cargarDashboard);</script>
+}

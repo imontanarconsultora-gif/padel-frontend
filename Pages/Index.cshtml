@@ -1,0 +1,381 @@
+@page
+@model PadelWeb.Pages.IndexModel
+@{
+    ViewData["Title"] = "Reservar turno";
+    ViewData["HeaderSub"] = "Reservas online";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+<style>
+  main { flex: 1; }
+
+  .hero {
+    background: var(--negro);
+    padding: 2rem 1.5rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '🎾';
+    position: absolute;
+    font-size: 120px;
+    opacity: .06;
+    right: -10px; bottom: -20px;
+    transform: rotate(-20deg);
+  }
+  .hero-inner { max-width: 560px; margin: 0 auto; position: relative; }
+  .hero-tag {
+    display: inline-block;
+    font-size: .63rem; font-weight: 600;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--dorado);
+    border: 1px solid rgba(201,168,76,.5);
+    border-radius: 20px;
+    padding: 3px 12px; margin-bottom: .75rem;
+  }
+  .hero h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem; font-weight: 800;
+    color: #fff; line-height: 1.1;
+  }
+  .hero p { color: rgba(255,255,255,.45); font-size: .875rem; margin-top: .4rem; }
+
+  /* STEPS */
+  .steps-wrap {
+    background: var(--negro);
+    border-bottom: 1px solid var(--borde);
+    padding: 0 1.5rem 1.25rem;
+  }
+  .steps {
+    display: flex; max-width: 560px;
+    margin: 0 auto; position: relative;
+  }
+  .steps::before {
+    content: ''; position: absolute;
+    top: 13px; left: 14px; right: 14px;
+    height: 1px; background: rgba(255,255,255,.1);
+  }
+  .step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; position: relative; z-index: 1; }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,.08); color: rgba(255,255,255,.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-weight: 700; transition: all .25s;
+  }
+  .step.active .step-num { background: var(--dorado); color: var(--negro); }
+  .step.done   .step-num { background: rgba(201,168,76,.35); color: var(--dorado); }
+  .step-label  { font-size: .6rem; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.25); }
+  .step.active .step-label { color: var(--dorado); }
+  .step.done   .step-label { color: rgba(201,168,76,.7); }
+
+  /* CONTENIDO PASOS */
+  .paso-content { max-width: 560px; margin: 0 auto; padding: 1.5rem; }
+  .seccion-label { font-size: .63rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--gris2); margin-bottom: .6rem; }
+
+  /* FILTROS CAT */
+  .cat-filter { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.25rem; }
+  .cat-btn {
+    background: #fff; border: 1.5px solid var(--borde);
+    border-radius: 20px; padding: .3rem .85rem;
+    color: var(--gris); font-size: .73rem; font-family: 'DM Sans', sans-serif;
+    font-weight: 500; cursor: pointer; transition: all .15s; white-space: nowrap;
+  }
+  .cat-btn:hover { border-color: var(--azul); color: var(--azul); }
+  .cat-btn.active { border-color: var(--azul); background: var(--azul); color: #fff; }
+
+  /* TURNOS */
+  .turnos-grid { display: flex; flex-direction: column; gap: .6rem; margin-bottom: 1.5rem; }
+  .turno-card {
+    background: #fff; border: 1.5px solid var(--borde);
+    border-radius: 12px; padding: .9rem 1.1rem;
+    cursor: pointer; display: flex; align-items: center; gap: 1rem; transition: all .15s;
+  }
+  .turno-card:hover { border-color: var(--azul); box-shadow: 0 2px 12px rgba(29,78,137,.1); }
+  .turno-card.selected { border-color: var(--azul); background: var(--azul-l); }
+  .turno-card.lleno { opacity: .4; cursor: not-allowed; pointer-events: none; }
+  .turno-dia-box {
+    background: var(--negro); color: #fff;
+    border-radius: 8px; width: 50px; height: 50px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .turno-card.selected .turno-dia-box { background: var(--azul); }
+  .turno-dia-box .dia { font-family: 'Syne', sans-serif; font-size: .68rem; font-weight: 700; letter-spacing: 1px; line-height: 1; }
+  .turno-dia-box .hora { font-family: 'DM Mono', monospace; font-size: .8rem; line-height: 1.4; }
+  .turno-info { flex: 1; }
+  .turno-nombre { font-weight: 600; font-size: .88rem; }
+  .turno-meta { display: flex; gap: .4rem; margin-top: 4px; flex-wrap: wrap; }
+  .check-mark {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--azul); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .7rem; font-weight: 700; opacity: 0; transition: opacity .15s; flex-shrink: 0;
+  }
+  .turno-card.selected .check-mark { opacity: 1; }
+
+  /* FECHAS */
+  .fecha-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: .5rem; margin-bottom: 1.25rem; }
+  .fecha-btn {
+    background: #fff; border: 1.5px solid var(--borde);
+    border-radius: 10px; padding: .65rem .5rem;
+    text-align: center; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    color: var(--gris); font-size: .73rem; transition: all .15s;
+  }
+  .fecha-btn:hover { border-color: var(--azul); color: var(--azul); }
+  .fecha-btn.selected { border-color: var(--azul); background: var(--azul-l); color: var(--azul); }
+  .fecha-num { display: block; font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--negro); line-height: 1; }
+  .fecha-btn.selected .fecha-num { color: var(--azul); }
+
+  /* BTN ACCION */
+  .btn-accion {
+    width: 100%; background: var(--azul); color: #fff; border: none;
+    border-radius: 10px; padding: .95rem;
+    font-family: 'Syne', sans-serif; font-size: .95rem; font-weight: 700; letter-spacing: 1.5px;
+    cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; gap: .5rem;
+  }
+  .btn-accion:hover:not(:disabled) { background: #163d6e; transform: translateY(-1px); }
+  .btn-accion:disabled { opacity: .35; cursor: not-allowed; }
+  .btn-accion.verde { background: var(--dorado); color: var(--negro); }
+  .btn-accion.verde:hover:not(:disabled) { background: #b5923e; }
+
+  .error-msg { background: var(--rojo-l); border: 1px solid #f5c6c2; border-radius: 8px; padding: .65rem 1rem; color: var(--rojo); font-size: .82rem; margin-bottom: .75rem; display: none; }
+  .error-msg.visible { display: block; }
+
+  .panel { display: none; }
+  .panel.visible { display: block; }
+
+  /* ÉXITO */
+  .exito-box {
+    max-width: 560px; margin: 2rem auto;
+    background: #fff; border: 1.5px solid var(--dorado);
+    border-radius: 16px; padding: 2rem 1.5rem; text-align: center;
+  }
+  .exito-icono { font-size: 3rem; display: block; margin-bottom: 1rem; }
+  .exito-box h3 { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--azul); }
+  .exito-box p { color: var(--gris); font-size: .875rem; margin-top: .4rem; }
+  .exito-detalle { background: var(--bg); border-radius: 10px; padding: 1rem; margin: 1.25rem 0; text-align: left; }
+  .resumen-row { display: flex; justify-content: space-between; padding: .35rem 0; font-size: .85rem; border-bottom: 1px solid var(--bg2); }
+  .resumen-row:last-child { border-bottom: none; }
+  .resumen-row .lbl { color: var(--gris); }
+  .resumen-row .val { font-weight: 600; }
+</style>
+}
+
+<!-- PANEL: FORMULARIO -->
+<div id="panel-form" class="panel visible">
+  <div class="hero">
+    <div class="hero-inner">
+      <span class="hero-tag">Reservas online</span>
+      <h2>Elegí tu turno</h2>
+      <p>Seleccioná la clase, la fecha y confirmá con tu número de WhatsApp</p>
+    </div>
+  </div>
+
+  <div class="steps-wrap">
+    <div class="steps">
+      <div class="step active" id="step1"><div class="step-num">1</div><div class="step-label">Turno</div></div>
+      <div class="step" id="step2"><div class="step-num">2</div><div class="step-label">Fecha</div></div>
+      <div class="step" id="step3"><div class="step-num">3</div><div class="step-label">Confirmar</div></div>
+    </div>
+  </div>
+
+  <div id="paso1" class="paso-content">
+    <p class="seccion-label">Turnos disponibles</p>
+    <div class="turnos-grid" id="turnos-grid">
+      <p style="color:var(--gris2);font-size:.85rem;">Cargando turnos...</p>
+    </div>
+  </div>
+
+  <div id="paso2" class="paso-content" style="display:none;">
+    <p class="seccion-label">Seleccioná la fecha</p>
+    <div class="fecha-grid" id="fechas-grid"></div>
+  </div>
+
+  <div id="paso3" class="paso-content" style="display:none;">
+    <div class="card" style="margin-bottom:.75rem;">
+      <div style="padding:1.25rem;">
+        <label class="form-label">Tu número de WhatsApp</label>
+        <input type="tel" class="form-control" id="input-tel" placeholder="Ej: 3415551234" maxlength="20" autocomplete="tel">
+        <p class="form-hint">El número con el que estás registrada. Te llegará la confirmación ahí.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div style="padding:1.25rem;">
+        <p class="form-label">Resumen</p>
+        <div id="resumen-reserva"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="paso-content" style="padding-top:0;">
+    <div class="error-msg" id="error-msg"></div>
+    <button class="btn-accion" id="btn-accion" onclick="avanzar()" disabled>Elegí un turno</button>
+  </div>
+</div>
+
+<!-- PANEL: ÉXITO -->
+<div id="panel-exito" class="panel">
+  <div class="exito-box">
+    <span class="exito-icono">✅</span>
+    <h3>¡Turno reservado!</h3>
+    <p>Te enviamos la confirmación por WhatsApp</p>
+    <div class="exito-detalle" id="exito-detalle"></div>
+    <p style="font-size:.8rem;color:var(--gris2);">
+      Recibirás un recordatorio 2 horas antes.<br>
+      Para cancelar, usá el link del mensaje de WhatsApp.
+    </p>
+    <br>
+    <button class="btn btn-ghost" onclick="reiniciar()">← Hacer otra reserva</button>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+  // API_URL definida en site.js como proxy local (evita CORS)
+
+  const DIAS_ABREV = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+  let estado = { paso:1, turno:null, fecha:null };
+
+  // ── INIT ──
+  async function init() {
+    await cargarTurnos();
+    const p = new URLSearchParams(location.search);
+    if (p.get('turno')) {
+      const t = _turnos.find(x => x.id === p.get('turno'));
+      if (t && t.cuposLibres > 0) { seleccionarTurno(t); if (p.get('fecha')) { estado.fecha=p.get('fecha'); irPaso(3); } }
+    }
+    if (p.get('tel')) document.getElementById('input-tel').value = p.get('tel');
+  }
+
+  let _turnos = [];
+  async function cargarTurnos() {
+    try {
+      const hoy = new Date().toISOString().slice(0,10);
+      _turnos = await apiGet(`/api/turnos?fecha=${hoy}`);
+      renderTurnos();
+    } catch(e) {
+      document.getElementById('turnos-grid').innerHTML = `<p style="color:var(--rojo)">Error al cargar turnos: ${e.message}</p>`;
+    }
+  }
+
+  const GENERO_INFO = { 1: { lbl:'Damas', cls:'badge-genero-d' }, 2: { lbl:'Caballeros', cls:'badge-genero-c' } };
+
+  function renderTurnos() {
+    const lista = _turnos.filter(t => t.activo);
+    document.getElementById('turnos-grid').innerHTML = lista.map(t => {
+      const lleno = t.cuposLibres === 0;
+      const esA   = t.categoria.includes('Avanzada');
+      const sel   = estado.turno?.id === t.id;
+      const gen   = GENERO_INFO[t.genero];
+      return `<div class="turno-card ${lleno?'lleno':''} ${sel?'selected':''}" onclick="seleccionarTurno(${JSON.stringify(t).replace(/"/g,'&quot;')})">
+        <div class="turno-dia-box">
+          <span class="dia">${DIAS_ABREV[t.diaSemana]}</span>
+          <span class="hora">${t.hora?.slice(0,5)}</span>
+        </div>
+        <div class="turno-info">
+          <div class="turno-nombre">${DIAS_FULL[t.diaSemana]} ${t.hora?.slice(0,5)}</div>
+          <div class="turno-meta">
+            <span class="badge ${esA?'badge-a':'badge-p'}">${t.categoria}</span>
+            ${gen ? `<span class="badge ${gen.cls}">${gen.lbl}</span>` : ''}
+            <span class="badge ${lleno?'badge-no':'badge-cupo'}">${lleno?'Completo':t.cuposLibres+' cupo'+(t.cuposLibres!==1?'s':'')}</span>
+          </div>
+        </div>
+        <div class="check-mark">✓</div>
+      </div>`;
+    }).join('') || `<p style="color:var(--gris2);font-size:.85rem;padding:.5rem 0;">No hay turnos para esta categoría.</p>`;
+  }
+
+  function seleccionarTurno(t) { estado.turno=t; renderTurnos(); actualizarBtn(); }
+
+  function irPaso(n) {
+    estado.paso = n;
+    ['paso1','paso2','paso3'].forEach((id,i) => document.getElementById(id).style.display = i+1===n?'block':'none');
+    [1,2,3].forEach(i => {
+      const s = document.getElementById(`step${i}`);
+      s.classList.toggle('active', i===n);
+      s.classList.toggle('done', i<n);
+    });
+    if (n===2) renderFechas();
+    if (n===3) renderResumen();
+    actualizarBtn();
+  }
+
+  function renderFechas() {
+    document.getElementById('fechas-grid').innerHTML = proximasFechas(estado.turno.diaSemana, 6).map(f =>
+      `<button class="fecha-btn ${estado.fecha===f.iso?'selected':''}" onclick="seleccionarFecha('${f.iso}',this)">
+        <span class="fecha-num">${f.diaNum}</span>${f.mes}
+      </button>`).join('');
+  }
+
+  function proximasFechas(dia, n) {
+    const out=[], d=new Date(); d.setHours(0,0,0,0);
+    while(out.length<n){d.setDate(d.getDate()+1);if(d.getDay()===dia%7)out.push({iso:d.toISOString().slice(0,10),diaNum:d.getDate(),mes:d.toLocaleDateString('es-AR',{month:'short'}).toUpperCase()});}
+    return out;
+  }
+
+  function seleccionarFecha(iso, btn) {
+    estado.fecha=iso;
+    document.querySelectorAll('.fecha-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected'); actualizarBtn();
+  }
+
+  function renderResumen() {
+    const t=estado.turno, f=new Date(estado.fecha+'T12:00:00');
+    document.getElementById('resumen-reserva').innerHTML = `
+      <div class="resumen-row"><span class="lbl">Turno</span><span class="val">${DIAS_FULL[t.diaSemana]} ${t.hora?.slice(0,5)}</span></div>
+      <div class="resumen-row"><span class="lbl">Fecha</span><span class="val">${f.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}</span></div>
+      <div class="resumen-row"><span class="lbl">Categoría</span><span class="val">${t.categoria}</span></div>`;
+  }
+
+  function avanzar() {
+    if(estado.paso===1&&estado.turno) irPaso(2);
+    else if(estado.paso===2&&estado.fecha) irPaso(3);
+    else if(estado.paso===3) confirmarReserva();
+  }
+
+  function actualizarBtn() {
+    const btn=document.getElementById('btn-accion');
+    if(estado.paso===1){btn.textContent=estado.turno?'→ Elegir fecha':'Elegí un turno';btn.disabled=!estado.turno;btn.className='btn-accion';}
+    else if(estado.paso===2){btn.textContent=estado.fecha?'→ Ingresar datos':'Elegí una fecha';btn.disabled=!estado.fecha;btn.className='btn-accion';}
+    else{btn.textContent='✓ CONFIRMAR RESERVA';btn.disabled=false;btn.className='btn-accion verde';}
+  }
+
+  function normalizarTel(t){t=t.replace(/\D/g,'');if(t.startsWith('549'))return t;if(t.startsWith('0'))t=t.slice(1);return '549'+t;}
+
+  async function confirmarReserva() {
+    const raw=document.getElementById('input-tel').value.trim();
+    const norm=normalizarTel(raw);
+    if(!/^549\d{10}$/.test(norm)){mostrarError('Ingresá un número válido (ej: 3415551234)');return;}
+    const btn=document.getElementById('btn-accion');
+    btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';
+    document.getElementById('error-msg').classList.remove('visible');
+    try {
+      await apiPost('/api/reservas',{telefono:norm,turnoId:estado.turno.id,fechaClase:estado.fecha});
+      mostrarExito();
+    } catch(e){mostrarError(e.message);btn.disabled=false;btn.textContent='✓ CONFIRMAR RESERVA';}
+  }
+
+  function mostrarError(msg){const el=document.getElementById('error-msg');el.textContent='⚠️ '+msg;el.classList.add('visible');}
+
+  function mostrarExito() {
+    const t=estado.turno,f=new Date(estado.fecha+'T12:00:00');
+    document.getElementById('exito-detalle').innerHTML=`
+      <div class="resumen-row"><span class="lbl">📅 Fecha</span><span class="val">${f.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}</span></div>
+      <div class="resumen-row"><span class="lbl">⏰ Hora</span><span class="val">${t.hora?.slice(0,5)}</span></div>
+      <div class="resumen-row"><span class="lbl">🏷 Categoría</span><span class="val">${t.categoria}</span></div>`;
+    document.getElementById('panel-form').classList.remove('visible');
+    document.getElementById('panel-exito').classList.add('visible');
+  }
+
+  function reiniciar(){
+    estado={paso:1,turno:null,fecha:null};
+    document.getElementById('input-tel').value='';
+    document.getElementById('error-msg').classList.remove('visible');
+    document.getElementById('panel-form').classList.add('visible');
+    document.getElementById('panel-exito').classList.remove('visible');
+    renderTurnos(); actualizarBtn();
+  }
+
+  init();
+</script>
+}

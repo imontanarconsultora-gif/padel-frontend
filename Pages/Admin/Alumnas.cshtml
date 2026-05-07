@@ -1,0 +1,89 @@
+@page
+@model PadelWeb.Pages.Admin.AlumnasModel
+@{
+    ViewData["Title"] = "Gestión de Alumnas";
+    ViewData["ActivePage"] = "Alumnas";
+    Layout = "~/Pages/Shared/_AdminLayout.cshtml";
+}
+
+@section TopbarActions {
+  <button class="btn btn-primary" onclick="nuevaAlumna()">+ Nueva alumna</button>
+}
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Alumnas registradas</span>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+      <select class="form-control" style="width:180px;" onchange="pintarAlumnas(document.getElementById('buscar-alumna').value, this.value)" id="filtro-cat">
+        <option value="">Todas las categorías</option>
+        @foreach(var cat in new[]{"8va Principiante","8va Avanzada","7ma Principiante","7ma Avanzada","6ta Principiante","6ta Avanzada","5ta Principiante","5ta Avanzada","4ta Principiante","4ta Avanzada"})
+        {
+          <option value="@cat">@cat</option>
+        }
+      </select>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="form-control" id="buscar-alumna" style="width:180px;" placeholder="Buscar..."
+               oninput="pintarAlumnas(this.value, document.getElementById('filtro-cat').value)">
+      </div>
+    </div>
+  </div>
+  <div style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr><th>Nombre</th><th>Teléfono</th><th>Categoría</th><th>Estado</th><th>Acciones</th></tr>
+      </thead>
+      <tbody id="alumnas-tabla"></tbody>
+    </table>
+  </div>
+  <div id="alumnas-empty" class="empty-state" style="display:none;">
+    <div class="empty-icon">👥</div>
+    <p>No hay alumnas registradas aún</p>
+    <button class="btn btn-primary" onclick="nuevaAlumna()">+ Agregar primera alumna</button>
+  </div>
+</div>
+
+<!-- Modal Alumna -->
+<div class="modal-overlay" id="modal-alumna">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-alumna-titulo">Nueva alumna</h3>
+      <button class="modal-close" onclick="cerrarModal('modal-alumna')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="alumna-edit-id">
+      <div class="form-group">
+        <label class="form-label">Nombre completo</label>
+        <input class="form-control" id="alumna-nombre" placeholder="Nombre y apellido">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Teléfono (WhatsApp)</label>
+        <input class="form-control" id="alumna-tel" placeholder="Ej: 3415551234" type="tel">
+        <p class="form-hint">Sin 0 ni 15. El sistema agrega el código de país automáticamente.</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Categoría</label>
+        <select class="form-control" id="alumna-categoria">
+          @foreach(var cat in new[]{"8va Principiante","8va Avanzada","7ma Principiante","7ma Avanzada","6ta Principiante","6ta Avanzada","5ta Principiante","5ta Avanzada","4ta Principiante","4ta Avanzada"})
+          {
+            <option value="@cat">@cat</option>
+          }
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" style="display:flex;align-items:center;gap:.5rem;cursor:pointer;">
+          <input type="checkbox" id="alumna-activa" checked style="width:16px;height:16px;"> Alumna activa
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrarModal('modal-alumna')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-guardar-alumna" onclick="guardarAlumna()">Guardar alumna</button>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script>/* API_URL se define en site.js como proxy local */</script>
+<script>document.addEventListener('DOMContentLoaded', cargarAlumnas);</script>
+}

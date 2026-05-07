@@ -1,0 +1,38 @@
+# ── Build output ──────────────────────────────────────
+bin/
+obj/
+
+# ── Secretos y configuración local ───────────────────
+appsettings.Development.json
+appsettings.Local.json
+*.user
+.env
+.env.*
+
+# ── Rider / Visual Studio ─────────────────────────────
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ── Rider run configurations ──────────────────────────
+.run/
+
+# ── Publicación y deploy ──────────────────────────────
+publish/
+**/publish/
+
+# ── Node (por si se agrega tooling JS en el futuro) ──
+node_modules/
+npm-debug.log*
+
+# ── OS ────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs ─────────────────────────────────────────────
+*.log
+logs/

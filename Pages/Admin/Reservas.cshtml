@@ -1,0 +1,31 @@
+@page
+@model PadelWeb.Pages.Admin.ReservasModel
+@{
+    ViewData["Title"] = "Reservas";
+    ViewData["ActivePage"] = "Reservas";
+    Layout = "~/Pages/Shared/_AdminLayout.cshtml";
+}
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Reservas del día</span>
+    <input type="date" class="form-control" style="width:160px;" id="filtro-fecha"
+           value="@Model.FechaHoy" onchange="cargarReservas(this.value)">
+  </div>
+  <div style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr><th>Alumna</th><th>Turno</th><th>Fecha</th><th>Estado</th><th>Recordatorio</th><th>Acciones</th></tr>
+      </thead>
+      <tbody id="reservas-tabla"></tbody>
+    </table>
+  </div>
+  <div id="reservas-empty" class="empty-state" style="display:none;">
+    <div class="empty-icon">📋</div><p>No hay reservas para esta fecha</p>
+  </div>
+</div>
+
+@section Scripts {
+<script>/* API_URL se define en site.js como proxy local */</script>
+<script>document.addEventListener('DOMContentLoaded', () => cargarReservas('@Model.FechaHoy'));</script>
+}

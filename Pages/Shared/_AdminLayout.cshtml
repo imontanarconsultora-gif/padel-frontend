@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@ViewData["Title"] — Admin · @(configuration["ClubNombre"] ?? "Pádel")</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
+  <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true">
+  @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="admin-body">
+
+<div class="admin-layout">
+
+  <!-- ── SIDEBAR ── Bootstrap offcanvas en mobile, sticky en desktop ── -->
+  <aside class="sidebar offcanvas-lg offcanvas-start" id="sidebarNav" tabindex="-1">
+
+    <div class="sidebar-logo">
+      <a href="https://instagram.com/imontanarconsultora" target="_blank" class="sidebar-logo-link" title="IMontanar · Sistemas & Consultoría">
+        <img src="~/img/logo-imontanar.png" alt="IMontanar" class="sidebar-im-logo">
+        <div>
+          <h1>PÁDEL</h1>
+          <span>Panel Admin</span>
+        </div>
+      </a>
+      <button type="button" class="btn-close btn-close-white d-lg-none ms-auto"
+              data-bs-dismiss="offcanvas" data-bs-target="#sidebarNav"
+              aria-label="Cerrar menú" style="font-size:.7rem;"></button>
+    </div>
+
+    <div class="nav-section">General</div>
+    <a href="/Admin/Dashboard" class="nav-item @(ViewData["ActivePage"]?.ToString() == "Dashboard" ? "active" : "")">
+      <span class="nav-icon">⊞</span><span>Dashboard</span>
+    </a>
+
+    <div class="nav-section">Gestión</div>
+    <a href="/Admin/Turnos" class="nav-item @(ViewData["ActivePage"]?.ToString() == "Turnos" ? "active" : "")">
+      <span class="nav-icon">🗓</span><span>Turnos</span>
+    </a>
+    <a href="/Admin/Alumnas" class="nav-item @(ViewData["ActivePage"]?.ToString() == "Alumnas" ? "active" : "")">
+      <span class="nav-icon">👥</span><span>Alumnas</span>
+    </a>
+    <a href="/Admin/Reservas" class="nav-item @(ViewData["ActivePage"]?.ToString() == "Reservas" ? "active" : "")">
+      <span class="nav-icon">📋</span><span>Reservas</span>
+    </a>
+
+    <div class="nav-section nav-section-bottom">Sistema</div>
+    <a href="/Admin/Config" class="nav-item @(ViewData["ActivePage"]?.ToString() == "Config" ? "active" : "")">
+      <span class="nav-icon">⚙</span><span>Config</span>
+    </a>
+
+    <a href="https://instagram.com/imontanarconsultora" target="_blank" class="sidebar-footer">
+      <img src="~/img/logo-imontanar.png" alt="IMontanar" style="height:22px;">
+      <div>
+        <div style="font-size:.7rem;font-weight:700;letter-spacing:.5px;">IMontanar</div>
+        <div style="font-size:.58rem;letter-spacing:1px;">Sistemas &amp; Consultoría</div>
+      </div>
+    </a>
+  </aside>
+
+  <!-- ── MAIN ─────────────────────────────────────────────────────── -->
+  <div class="admin-main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:.75rem;min-width:0;">
+        <button class="sidebar-toggle d-lg-none" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#sidebarNav"
+                aria-controls="sidebarNav" aria-label="Abrir menú">☰</button>
+        <h2 style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">@ViewData["Title"]</h2>
+      </div>
+      <div class="topbar-actions">
+        @await RenderSectionAsync("TopbarActions", required: false)
+        <form method="post" asp-page="/Admin/Logout" style="margin:0">
+          @Html.AntiForgeryToken()
+          <button type="submit" class="btn btn-ghost btn-sm">Salir</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="admin-content">
+      @RenderBody()
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/admin.js" asp-append-version="true"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+@inject IConfiguration configuration
