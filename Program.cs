@@ -24,7 +24,7 @@ builder.Services.AddHttpClient("PadelApi", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ApiUrl"] ?? "http://localhost:5000");
     client.DefaultRequestHeaders.Add("Accept", "application/json");
-    client.Timeout = TimeSpan.FromSeconds(60); // Render puede tardar en despertar
+    client.Timeout = TimeSpan.FromSeconds(90); // Render free tier puede tardar hasta 60s en despertar
 });
 
 var app = builder.Build();
@@ -59,14 +59,29 @@ app.Map("/api/{**catchAll}", async (HttpContext ctx, IHttpClientFactory factory,
             "Content-Type", ctx.Request.ContentType ?? "application/json");
     }
 
-    var client = factory.CreateClient("PadelApi");
-    var res    = await client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
+    try
+    {
+        var client = factory.CreateClient("PadelApi");
+        var res    = await client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
 
-    ctx.Response.StatusCode = (int)res.StatusCode;
-    if (res.Content.Headers.ContentType?.ToString() is { } ct)
-        ctx.Response.ContentType = ct;
+        ctx.Response.StatusCode = (int)res.StatusCode;
+        if (res.Content.Headers.ContentType?.ToString() is { } ct)
+            ctx.Response.ContentType = ct;
 
-    await res.Content.CopyToAsync(ctx.Response.Body);
+        await res.Content.CopyToAsync(ctx.Response.Body);
+    }
+    catch (TaskCanceledException)
+    {
+        ctx.Response.StatusCode  = 504;
+        ctx.Response.ContentType = "application/json";
+        await ctx.Response.WriteAsync("{\"mensaje\":\"El servidor tardó demasiado en responder. Puede estar iniciando, intentá de nuevo en unos segundos.\"}");
+    }
+    catch (HttpRequestException)
+    {
+        ctx.Response.StatusCode  = 502;
+        ctx.Response.ContentType = "application/json";
+        await ctx.Response.WriteAsync("{\"mensaje\":\"No se pudo conectar al servidor backend. Verificá que el servicio esté activo.\"}");
+    }
 });
 
 app.MapRazorPages();

@@ -15,7 +15,13 @@ async function apiCall(method, path, body = null) {
   if (body) opts.body = JSON.stringify(body);
   const res = await fetch(`${window.API_URL}${path}`, opts);
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.mensaje || data.title || `Error ${res.status}`);
+  if (!res.ok) {
+    const msg = data.mensaje || data.title ||
+      (res.status === 502 ? 'No se pudo conectar al servidor. Intentá de nuevo en unos segundos.' :
+       res.status === 504 ? 'El servidor tardó demasiado. Puede estar iniciando, intentá de nuevo.' :
+       `Error ${res.status}`);
+    throw new Error(msg);
+  }
   return data;
 }
 
