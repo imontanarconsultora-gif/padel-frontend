@@ -78,6 +78,12 @@ window.descargarCSV = function(headers, rows, nombre) {
   URL.revokeObjectURL(url);
 };
 
+// ── WARM-UP DEL BACKEND ───────────────────────────────
+// Render free tier duerme tras inactividad. Dispara un ping en cada
+// carga de página para que el backend empiece a despertar de inmediato,
+// antes de que el usuario intente hacer algo.
+fetch('/api/turnos').catch(() => {});
+
 // ── CONSTANTES ────────────────────────────────────────
 window.DIAS_FULL = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 window.CATS_LIST = [

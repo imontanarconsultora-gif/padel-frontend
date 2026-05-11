@@ -249,12 +249,21 @@
 
   let _turnos = [];
   async function cargarTurnos() {
+    const grid = document.getElementById('turnos-grid');
+    const warmup = setTimeout(() => {
+      grid.innerHTML = `<div style="color:var(--gris2);font-size:.85rem;display:flex;align-items:center;gap:.6rem;padding:.5rem 0;">
+        <div class="spinner spinner-dark" style="flex-shrink:0;width:18px;height:18px;"></div>
+        El servidor está iniciando, esperá unos segundos...
+      </div>`;
+    }, 5000);
     try {
       const hoy = new Date().toISOString().slice(0,10);
       _turnos = await apiGet(`/api/turnos?fecha=${hoy}`);
+      clearTimeout(warmup);
       renderTurnos();
     } catch(e) {
-      document.getElementById('turnos-grid').innerHTML = `<p style="color:var(--rojo)">Error al cargar turnos: ${e.message}</p>`;
+      clearTimeout(warmup);
+      grid.innerHTML = `<p style="color:var(--rojo)">Error al cargar turnos: ${e.message}</p>`;
     }
   }
 
